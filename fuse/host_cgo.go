@@ -175,11 +175,11 @@ static void *cgofuse_init_fuse(void)
 	if (0 == h)
 		h = dlopen("/usr/local/lib/libfuse-t.dylib", RTLD_NOW); // FUSE-T
 #elif defined(__FreeBSD__)
-	h = dlopen("libfuse.so.2", RTLD_NOW);
+	h = dlopen("libfuse3.so.3", RTLD_NOW);
 #elif defined(__NetBSD__)
-	h = dlopen("librefuse.so.2", RTLD_NOW);
+	h = dlopen("librefuse3.so.3", RTLD_NOW);
 #elif defined(__OpenBSD__)
-	h = dlopen("libfuse.so.2.0", RTLD_NOW);
+	h = dlopen("libfuse3.so.3.0", RTLD_NOW);
 #elif defined(__linux__)
 	h = dlopen("libfuse3.so.3", RTLD_NOW);
 #endif
