@@ -193,7 +193,7 @@ func (self *Memfs) Rename(oldpath string, newpath string, flags uint32) (errc in
 	return 0
 }
 
-func (self *Memfs) Chmod(path string, mode uint32, fi uint64) (errc int) {
+func (self *Memfs) Chmod(path string, mode uint32, fh uint64) (errc int) {
 	defer trace(path, mode)(&errc)
 	defer self.synchronize()()
 	_, _, node := self.lookupNode(path, nil)
@@ -205,7 +205,7 @@ func (self *Memfs) Chmod(path string, mode uint32, fi uint64) (errc int) {
 	return 0
 }
 
-func (self *Memfs) Chown(path string, uid uint32, gid uint32, fi uint64) (errc int) {
+func (self *Memfs) Chown(path string, uid uint32, gid uint32, fh uint64) (errc int) {
 	defer trace(path, uid, gid)(&errc)
 	defer self.synchronize()()
 	_, _, node := self.lookupNode(path, nil)
@@ -222,7 +222,7 @@ func (self *Memfs) Chown(path string, uid uint32, gid uint32, fi uint64) (errc i
 	return 0
 }
 
-func (self *Memfs) Utimens(path string, tmsp []fuse.Timespec, fi uint64) (errc int) {
+func (self *Memfs) Utimens(path string, tmsp []fuse.Timespec, fh uint64) (errc int) {
 	defer trace(path, tmsp)(&errc)
 	defer self.synchronize()()
 	_, _, node := self.lookupNode(path, nil)

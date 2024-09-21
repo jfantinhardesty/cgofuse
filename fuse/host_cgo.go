@@ -359,8 +359,6 @@ extern void *go_hostInit(struct fuse_conn_info *conn, struct fuse_config *cfg);
 extern void go_hostDestroy(void *data);
 extern int go_hostAccess(char *path, int mask);
 extern int go_hostCreate(char *path, fuse_mode_t mode, struct fuse_file_info *fi);
-//extern int go_hostFtruncate(char *path, fuse_off_t off, struct fuse_file_info *fi);
-//extern int go_hostFgetattr(char *path, fuse_stat_t *stbuf, struct fuse_file_info *fi);
 //extern int go_hostLock(char *path, struct fuse_file_info *fi, int cmd, struct fuse_flock *lock);
 extern int go_hostUtimens(char *path, fuse_timespec_t tv[2], struct fuse_file_info *fi);
 extern int go_hostGetpath(char *path, char *buf, size_t size,
@@ -587,8 +585,6 @@ static int hostMount(int argc, char *argv[], void *data)
 		.destroy = (void (*)(void *))go_hostDestroy,
 		.access = (int (*)(const char *, int))go_hostAccess,
 		.create = (int (*)(const char *, fuse_mode_t, struct fuse_file_info *))go_hostCreate,
-		//.truncate = (int (*)(const char *, fuse_off_t, struct fuse_file_info *))go_hostFtruncate,
-		//.getattr = (int (*)(const char *, fuse_stat_t *, struct fuse_file_info *))go_hostFgetattr,
 		//.lock = (int (*)(const char *, struct fuse_file_info *, int, struct fuse_flock *))
 		//	go_hostFlock,
 		.utimens = (int (*)(const char *, const fuse_timespec_t [2], struct fuse_file_info *))go_hostUtimens,

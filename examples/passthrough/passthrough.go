@@ -124,19 +124,19 @@ func (self *Ptfs) Rename(oldpath string, newpath string, flags uint32) (errc int
 	return errno(syscall.Rename(oldpath, newpath))
 }
 
-func (self *Ptfs) Chmod(path string, mode uint32, fi uint64) (errc int) {
+func (self *Ptfs) Chmod(path string, mode uint32, fh uint64) (errc int) {
 	defer trace(path, mode)(&errc)
 	path = filepath.Join(self.root, path)
 	return errno(syscall.Chmod(path, mode))
 }
 
-func (self *Ptfs) Chown(path string, uid uint32, gid uint32, fi uint64) (errc int) {
+func (self *Ptfs) Chown(path string, uid uint32, gid uint32, fh uint64) (errc int) {
 	defer trace(path, uid, gid)(&errc)
 	path = filepath.Join(self.root, path)
 	return errno(syscall.Lchown(path, int(uid), int(gid)))
 }
 
-func (self *Ptfs) Utimens(path string, tmsp1 []fuse.Timespec, fi uint64) (errc int) {
+func (self *Ptfs) Utimens(path string, tmsp1 []fuse.Timespec, fh uint64) (errc int) {
 	defer trace(path, tmsp1)(&errc)
 	path = filepath.Join(self.root, path)
 	tmsp := [2]syscall.Timespec{}

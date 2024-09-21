@@ -25,15 +25,15 @@ type testfs struct {
 	init, dstr int
 }
 
-func (fs *testfs) Init() {
-	fs.init++
+func (self *testfs) Init() {
+	self.init++
 }
 
-func (fs *testfs) Destroy() {
-	fs.dstr++
+func (self *testfs) Destroy() {
+	self.dstr++
 }
 
-func (fs *testfs) Getattr(path string, stat *Stat_t, fh uint64) (errc int) {
+func (self *testfs) Getattr(path string, stat *Stat_t, fh uint64) (errc int) {
 	switch path {
 	case "/":
 		stat.Mode = S_IFDIR | 0555
@@ -43,7 +43,7 @@ func (fs *testfs) Getattr(path string, stat *Stat_t, fh uint64) (errc int) {
 	}
 }
 
-func (fs *testfs) Readdir(path string,
+func (self *testfs) Readdir(path string,
 	fill func(name string, stat *Stat_t, ofst int64) bool,
 	ofst int64,
 	fh uint64, flags uint32) (errc int) {
