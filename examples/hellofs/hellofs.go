@@ -36,13 +36,15 @@ func (self *Hellofs) Open(path string, flags int) (errc int, fh uint64) {
 	}
 }
 
-func (self *Hellofs) Getattr(path string, stat *fuse.Stat_t, fh uint64) (errc int) {
+func (self *Hellofs) Getattr(path string, stat *fuse.Stat_t, fi uint64) (errc int) {
 	switch path {
 	case "/":
-		stat.Mode = fuse.S_IFDIR | 0555
+		stat.Mode = fuse.S_IFDIR | 0755
+		stat.Nlink = 2
 		return 0
 	case "/" + filename:
 		stat.Mode = fuse.S_IFREG | 0444
+		stat.Nlink = 1
 		stat.Size = int64(len(contents))
 		return 0
 	default:
@@ -50,7 +52,7 @@ func (self *Hellofs) Getattr(path string, stat *fuse.Stat_t, fh uint64) (errc in
 	}
 }
 
-func (self *Hellofs) Read(path string, buff []byte, ofst int64, fh uint64) (n int) {
+func (self *Hellofs) Read(path string, buff []byte, ofst int64, fi uint64) (n int) {
 	endofst := ofst + int64(len(buff))
 	if endofst > int64(len(contents)) {
 		endofst = int64(len(contents))
@@ -64,8 +66,7 @@ func (self *Hellofs) Read(path string, buff []byte, ofst int64, fh uint64) (n in
 
 func (self *Hellofs) Readdir(path string,
 	fill func(name string, stat *fuse.Stat_t, ofst int64) bool,
-	ofst int64,
-	fh uint64) (errc int) {
+	ofst int64, fh uint64, flags uint32) (errc int) {
 	fill(".", nil, 0)
 	fill("..", nil, 0)
 	fill(filename, nil, 0)

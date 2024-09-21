@@ -13,7 +13,6 @@
 package fuse
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -26,15 +25,15 @@ type testfs struct {
 	init, dstr int
 }
 
-func (self *testfs) Init() {
-	self.init++
+func (fs *testfs) Init() {
+	fs.init++
 }
 
-func (self *testfs) Destroy() {
-	self.dstr++
+func (fs *testfs) Destroy() {
+	fs.dstr++
 }
 
-func (self *testfs) Getattr(path string, stat *Stat_t, fh uint64) (errc int) {
+func (fs *testfs) Getattr(path string, stat *Stat_t, fh uint64) (errc int) {
 	switch path {
 	case "/":
 		stat.Mode = S_IFDIR | 0555
@@ -44,23 +43,23 @@ func (self *testfs) Getattr(path string, stat *Stat_t, fh uint64) (errc int) {
 	}
 }
 
-func (self *testfs) Readdir(path string,
+func (fs *testfs) Readdir(path string,
 	fill func(name string, stat *Stat_t, ofst int64) bool,
 	ofst int64,
-	fh uint64) (errc int) {
+	fh uint64, flags uint32) (errc int) {
 	fill(".", nil, 0)
 	fill("..", nil, 0)
 	return 0
 }
 
 func testHost(t *testing.T, unmount bool) {
-	path, err := ioutil.TempDir("", "test")
+	path, err := os.MkdirTemp("", "test")
 	if nil != err {
 		panic(err)
 	}
 	defer os.Remove(path)
 	mntp := filepath.Join(path, "m")
-	if "windows" != runtime.GOOS {
+	if runtime.GOOS != "windows" {
 		err = os.Mkdir(mntp, os.FileMode(0755))
 		if nil != err {
 			panic(err)
@@ -90,10 +89,10 @@ func testHost(t *testing.T, unmount bool) {
 	if !ures {
 		t.Error("Unmount failed")
 	}
-	if 1 != tstf.init {
+	if tstf.init != 1 {
 		t.Errorf("Init() called %v times; expected 1", tstf.init)
 	}
-	if 1 != tstf.dstr {
+	if tstf.dstr != 1 {
 		t.Errorf("Destroy() called %v times; expected 1", tstf.dstr)
 	}
 }
@@ -103,7 +102,7 @@ func TestUnmount(t *testing.T) {
 }
 
 func TestSignal(t *testing.T) {
-	if "windows" != runtime.GOOS {
+	if runtime.GOOS != "windows" {
 		testHost(t, false)
 	}
 }

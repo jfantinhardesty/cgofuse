@@ -164,7 +164,7 @@ func (self *Memfs) Readlink(path string) (errc int, target string) {
 	return 0, string(node.data)
 }
 
-func (self *Memfs) Rename(oldpath string, newpath string) (errc int) {
+func (self *Memfs) Rename(oldpath string, newpath string, flags uint32) (errc int) {
 	defer trace(oldpath, newpath)(&errc)
 	defer self.synchronize()()
 	oldprnt, oldname, oldnode := self.lookupNode(oldpath, nil)
@@ -175,7 +175,7 @@ func (self *Memfs) Rename(oldpath string, newpath string) (errc int) {
 	if nil == newprnt {
 		return -fuse.ENOENT
 	}
-	if "" == newname {
+	if newname == "" {
 		// guard against directory loop creation
 		return -fuse.EINVAL
 	}
@@ -184,7 +184,7 @@ func (self *Memfs) Rename(oldpath string, newpath string) (errc int) {
 	}
 	if nil != newnode {
 		errc = self.removeNode(newpath, fuse.S_IFDIR == oldnode.stat.Mode&fuse.S_IFMT)
-		if 0 != errc {
+		if errc != 0 {
 			return errc
 		}
 	}
@@ -193,7 +193,7 @@ func (self *Memfs) Rename(oldpath string, newpath string) (errc int) {
 	return 0
 }
 
-func (self *Memfs) Chmod(path string, mode uint32) (errc int) {
+func (self *Memfs) Chmod(path string, mode uint32, fi uint64) (errc int) {
 	defer trace(path, mode)(&errc)
 	defer self.synchronize()()
 	_, _, node := self.lookupNode(path, nil)
@@ -205,7 +205,7 @@ func (self *Memfs) Chmod(path string, mode uint32) (errc int) {
 	return 0
 }
 
-func (self *Memfs) Chown(path string, uid uint32, gid uint32) (errc int) {
+func (self *Memfs) Chown(path string, uid uint32, gid uint32, fi uint64) (errc int) {
 	defer trace(path, uid, gid)(&errc)
 	defer self.synchronize()()
 	_, _, node := self.lookupNode(path, nil)
@@ -222,7 +222,7 @@ func (self *Memfs) Chown(path string, uid uint32, gid uint32) (errc int) {
 	return 0
 }
 
-func (self *Memfs) Utimens(path string, tmsp []fuse.Timespec) (errc int) {
+func (self *Memfs) Utimens(path string, tmsp []fuse.Timespec, fi uint64) (errc int) {
 	defer trace(path, tmsp)(&errc)
 	defer self.synchronize()()
 	_, _, node := self.lookupNode(path, nil)
@@ -325,7 +325,7 @@ func (self *Memfs) Opendir(path string) (errc int, fh uint64) {
 func (self *Memfs) Readdir(path string,
 	fill func(name string, stat *fuse.Stat_t, ofst int64) bool,
 	ofst int64,
-	fh uint64) (errc int) {
+	fh uint64, flags uint32) (errc int) {
 	defer trace(path, fill, ofst, fh)(&errc)
 	defer self.synchronize()()
 	node := self.openmap[fh]
@@ -352,7 +352,7 @@ func (self *Memfs) Setxattr(path string, name string, value []byte, flags int) (
 	if nil == node {
 		return -fuse.ENOENT
 	}
-	if "com.apple.ResourceFork" == name {
+	if name == "com.apple.ResourceFork" {
 		return -fuse.ENOTSUP
 	}
 	if fuse.XATTR_CREATE == flags {
@@ -380,7 +380,7 @@ func (self *Memfs) Getxattr(path string, name string) (errc int, xatr []byte) {
 	if nil == node {
 		return -fuse.ENOENT, nil
 	}
-	if "com.apple.ResourceFork" == name {
+	if name == "com.apple.ResourceFork" {
 		return -fuse.ENOTSUP, nil
 	}
 	xatr, ok := node.xatr[name]
@@ -397,7 +397,7 @@ func (self *Memfs) Removexattr(path string, name string) (errc int) {
 	if nil == node {
 		return -fuse.ENOENT
 	}
-	if "com.apple.ResourceFork" == name {
+	if name == "com.apple.ResourceFork" {
 		return -fuse.ENOTSUP
 	}
 	if _, ok := node.xatr[name]; !ok {
@@ -462,7 +462,7 @@ func (self *Memfs) lookupNode(path string, ancestor *node_t) (prnt *node_t, name
 	name = ""
 	node = self.root
 	for _, c := range split(path) {
-		if "" != c {
+		if c != "" {
 			if 255 < len(c) {
 				panic(fuse.Error(-fuse.ENAMETOOLONG))
 			}
@@ -537,7 +537,7 @@ func (self *Memfs) openNode(path string, dir bool) (int, uint64) {
 		return -fuse.ENOTDIR, ^uint64(0)
 	}
 	node.opencnt++
-	if 1 == node.opencnt {
+	if node.opencnt == 1 {
 		self.openmap[node.stat.Ino] = node
 	}
 	return 0, node.stat.Ino
@@ -546,7 +546,7 @@ func (self *Memfs) openNode(path string, dir bool) (int, uint64) {
 func (self *Memfs) closeNode(fh uint64) int {
 	node := self.openmap[fh]
 	node.opencnt--
-	if 0 == node.opencnt {
+	if node.opencnt == 0 {
 		delete(self.openmap, node.stat.Ino)
 	}
 	return 0
