@@ -339,7 +339,7 @@ extern int go_hostChown(char *path, fuse_uid_t uid, fuse_gid_t gid, struct fuse_
 extern int go_hostTruncate(char *path, fuse_off_t size, struct fuse_file_info *fi);
 extern int go_hostOpen(char *path, struct fuse_file_info *fi);
 extern int go_hostRead(char *path, char *buf, size_t size, fuse_off_t off,
-    struct fuse_file_info *fi);
+	struct fuse_file_info *fi);
 extern int go_hostWrite(char *path, char *buf, size_t size, fuse_off_t off,
 	struct fuse_file_info *fi);
 extern int go_hostStatfs(char *path, fuse_statvfs_t *stbuf);

@@ -32,22 +32,19 @@ jobs:
           - os: ubuntu-latest
             arch: amd64
             cgo: 1
-          - os: macos-10.15
-            arch: amd64
-            cgo: 1
       fail-fast: false
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
       - name: Install go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           stable: true
-          go-version: 1.17.*
+          go-version: 1.21.*
 
       - name: Install winfsp and winfsp-tests (Windows)
         if: runner.os == 'Windows'
@@ -69,7 +66,7 @@ jobs:
       - name: Install FUSE and secfs.test (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get -qq install libfuse-dev
+          sudo apt-get -qq install libfuse3-dev
           sudo apt-get -qq install libacl1-dev
 
           git clone -q https://github.com/billziss-gh/secfs.test.git secfs.test
