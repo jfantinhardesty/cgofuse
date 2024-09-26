@@ -390,6 +390,16 @@ static inline void hostAsgnCconninfo(struct fuse_conn_info *conn,
 #endif
 }
 
+static inline void hostAsgnCconfig(struct fuse_config *cfg,
+	bool direct_io,
+	bool use_ino)
+{
+	memset(cfg, 0, sizeof *cfg);
+	cfg->direct_io = direct_io;
+	cfg->use_ino = use_ino;
+	cfg->attr_timeout = 0;
+}
+
 static inline void hostCstatvfsFromFusestatfs(fuse_statvfs_t *stbuf,
 	uint64_t bsize,
 	uint64_t frsize,
@@ -779,6 +789,11 @@ func c_hostAsgnCconninfo(conn *c_struct_fuse_conn_info,
 	capReaddirPlus c_bool,
 	capDeleteAccess c_bool) {
 	C.hostAsgnCconninfo(conn, capCaseInsensitive, capReaddirPlus, capDeleteAccess)
+}
+func c_hostAsgnCconfig(cfg *c_struct_fuse_config,
+	directIO c_bool,
+	useIno c_bool) {
+	C.hostAsgnCconfig(cfg, directIO, useIno)
 }
 func c_hostCstatvfsFromFusestatfs(stbuf *c_fuse_statvfs_t,
 	bsize c_uint64_t,
