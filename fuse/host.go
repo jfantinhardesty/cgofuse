@@ -511,6 +511,25 @@ func hostCreate(path0 *c_char, mode0 c_fuse_mode_t, fi0 *c_struct_fuse_file_info
 	}
 }
 
+func hostFtruncate(path0 *c_char, size0 c_fuse_off_t, fi0 *c_struct_fuse_file_info) (errc0 c_int) {
+	defer recoverAsErrno(&errc0)
+	fsop := hostHandleGet(c_fuse_get_context().private_data).fsop
+	path := c_GoString(path0)
+	errc := fsop.Truncate(path, int64(size0), uint64(fi0.fh))
+	return c_int(errc)
+}
+
+func hostFgetattr(path0 *c_char, stat0 *c_fuse_stat_t,
+	fi0 *c_struct_fuse_file_info) (errc0 c_int) {
+	defer recoverAsErrno(&errc0)
+	fsop := hostHandleGet(c_fuse_get_context().private_data).fsop
+	path := c_GoString(path0)
+	stat := &Stat_t{}
+	errc := fsop.Getattr(path, stat, uint64(fi0.fh))
+	copyCstatFromFusestat(stat0, stat)
+	return c_int(errc)
+}
+
 func hostUtimens(path0 *c_char, tmsp0 *c_fuse_timespec_t, fi0 *c_struct_fuse_file_info) (errc0 c_int) {
 	defer recoverAsErrno(&errc0)
 	fsop := hostHandleGet(c_fuse_get_context().private_data).fsop
@@ -697,18 +716,18 @@ func (host *FileSystemHost) Mount(mountpoint string, opts []string) bool {
 	 * We need to determine the mountpoint that FUSE is going (to try) to use, so that we
 	 * can unmount later.
 	 */
-	if mountpoint != "" {
+	if "" != mountpoint {
 		host.mntp = mountpoint
 	} else {
 		outargs, _ := OptParse(opts, "")
-		if len(outargs) >= 1 {
+		if 1 <= len(outargs) {
 			host.mntp = outargs[0]
 		}
 	}
-	if host.mntp != "" {
-		if runtime.GOOS != "windows" || len(host.mntp) != 2 || host.mntp[1] != ':' {
+	if "" != host.mntp {
+		if "windows" != runtime.GOOS || 2 != len(host.mntp) || ':' != host.mntp[1] {
 			abs, err := filepath.Abs(host.mntp)
-			if err == nil {
+			if nil == err {
 				host.mntp = abs
 			}
 		}
@@ -747,7 +766,7 @@ func (host *FileSystemHost) Mount(mountpoint string, opts []string) bool {
 	 */
 	hndl := hostHandleNew(host)
 	defer hostHandleDel(hndl)
-	return c_hostMount(c_int(argc), &argv[0], hndl) != 0
+	return 0 != c_hostMount(c_int(argc), &argv[0], hndl)
 }
 
 // Unmount unmounts a mounted file system.
@@ -758,11 +777,11 @@ func (host *FileSystemHost) Unmount() bool {
 		return false
 	}
 	var mntp *c_char
-	if host.mntp != "" {
+	if "" != host.mntp {
 		mntp = c_CString(host.mntp)
 		defer c_free(unsafe.Pointer(mntp))
 	}
-	return c_hostUnmount(host.fuse, mntp) != 0
+	return 0 != c_hostUnmount(host.fuse, mntp)
 }
 
 // Notify notifies the operating system about a file change.
@@ -771,7 +790,7 @@ func (host *FileSystemHost) Notify(path string, action uint32) bool {
 	if nil == host.fuse {
 		return false
 	}
-	if path == "" {
+	if "" == path {
 		return false
 	}
 	var p *c_char
