@@ -26,10 +26,13 @@ jobs:
           - os: windows-latest
             arch: amd64
             cgo: 0
-          - os: windows-latest
-            arch: 386
-            cgo: 0
+          # - os: windows-latest
+          #   arch: 386
+          #   cgo: 0
           - os: ubuntu-latest
+            arch: amd64
+            cgo: 1
+          - os: macos-12
             arch: amd64
             cgo: 1
       fail-fast: false
@@ -44,7 +47,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           stable: true
-          go-version: 1.21.*
+          go-version: 1.23.*
 
       - name: Install winfsp and winfsp-tests (Windows)
         if: runner.os == 'Windows'
@@ -72,7 +75,7 @@ jobs:
           git clone -q https://github.com/billziss-gh/secfs.test.git secfs.test
           git -C secfs.test checkout -q edf5eb4a108bfb41073f765aef0cdd32bb3ee1ed
           mkdir -p secfs.test/tools/bin
-          touch secfs.test/tools/bin/bonnie++
+          touch secfs.test/tools/bin/bonnie++macos-12
           touch secfs.test/tools/bin/iozone
           make -C secfs.test
 
@@ -86,9 +89,9 @@ jobs:
       - name: Install FUSE and secfs.test (macOS)
         if: runner.os == 'macOS'
         run: |
-          # requires macos-10.15; does not work on macos-latest
+          # use fuse-t instead of osxfuse does not work on macos-latest
           # see https://github.com/actions/virtual-environments/issues/4731
-          brew install macfuse
+          brew install fuse-t
 
           git clone -q https://github.com/billziss-gh/secfs.test.git secfs.test
           git -C secfs.test checkout -q edf5eb4a108bfb41073f765aef0cdd32bb3ee1ed
@@ -108,12 +111,12 @@ jobs:
           rm -rf secfs.test/fstest/fstest/tests/xacl
           rm -rf secfs.test/fstest/fstest/tests/zzz_ResourceFork
 
-      - name: Build packages
+      - name: Build packages with fuse2
         run: |
           go build -v -o . ./...
           go test -v -count=1 ./fuse
 
-      - name: Test file systems (Windows)
+      - name: Test file systems (Windows) with fuse2
         if: runner.os == 'Windows'
         run: |
           Set-PSDebug -Trace 1
@@ -131,7 +134,7 @@ jobs:
           Start-Sleep 3
           Pop-Location
 
-      - name: Test file systems (Linux / macOS)
+      - name: Test file systems (Linux / macOS) with fuse2
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           set -x
@@ -146,6 +149,52 @@ jobs:
           sudo umount mnt
 
           sudo ./passthrough -o allow_other,default_permissions,use_ino,attr_timeout=0 p mnt &
+          sleep 3
+          (cd mnt && sudo prove -fr ../secfs.test/fstest/fstest/tests)
+          (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
+          sudo umount mnt
+
+          rm -rf p
+          rmdir mnt
+
+      - name: Build packages with fuse3
+        run: |
+          go build -tags=fuse3 -v -o . ./...
+          go test -v -count=1 ./fuse
+
+      - name: Test file systems (Windows) with fuse3
+        if: runner.os == 'Windows'
+        run: |
+          Set-PSDebug -Trace 1
+
+          $testexe = (Get-Item winfsp-tests\winfsp-tests-x64.exe)
+          Start-Process -NoNewWindow .\memfs.exe "-o uid=-1,rellinks,FileInfoTimeout=-1 X:"
+          Start-Sleep 3
+          Push-Location X:\
+          . $testexe --fuse-external --resilient --case-insensitive-cmp `
+              +* `
+              -create_fileattr_test `
+              -reparse_nfs_test `
+              -ea*
+          Stop-Process -Name memfs
+          Start-Sleep 3
+          Pop-Location
+
+      - name: Test file systems (Linux / macOS) with fuse3
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+          set -x
+
+          mkdir p mnt
+
+          sudo ./memfs -o allow_other,default_permissions,attr_timeout=0 mnt &
+          sleep 3
+          (cd mnt && sudo prove -fr ../secfs.test/fstest/fstest/tests)
+          (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
+          (cd mnt && ../secfs.test/tools/bin/fsx -e -N 1000 test xxxx)
+          sudo umount mnt
+
+          sudo ./passthrough -o allow_other,default_permissions,attr_timeout=0 p mnt &
           sleep 3
           (cd mnt && sudo prove -fr ../secfs.test/fstest/fstest/tests)
           (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)

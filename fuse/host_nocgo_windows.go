@@ -369,6 +369,23 @@ func c_hostAsgnCconninfo(conn *c_struct_fuse_conn_info,
 		conn.want |= conn.capable & FSP_FUSE_CAP_DELETE_ACCESS
 	}
 }
+func c_hostAsgnCconfig(cfg *c_struct_fuse_config,
+	directIO c_bool,
+	useIno c_bool) {
+	if directIO {
+		cfg.direct_io = 1
+	} else {
+		cfg.direct_io = 0
+	}
+
+	if useIno {
+		cfg.use_ino = 1
+	} else {
+		cfg.use_ino = 0
+	}
+
+	cfg.attr_timeout = 0
+}
 func c_hostCstatvfsFromFusestatfs(stbuf *c_fuse_statvfs_t,
 	bsize c_uint64_t,
 	frsize c_uint64_t,
