@@ -266,5 +266,6 @@ func main() {
 	}
 	_host = fuse.NewFileSystemHost(&ptfs)
 	_host.SetDirectIO(true)
+	_host.SetUseIno(true)
 	_host.Mount("", args[1:])
 }

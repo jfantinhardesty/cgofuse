@@ -229,21 +229,22 @@ func (self *Memfs) Utimens(path string, tmsp []fuse.Timespec, fh uint64) (errc i
 	if nil == node {
 		return -fuse.ENOENT
 	}
-	node.stat.Ctim = fuse.Now()
-	if nil == tmsp {
-		tmsp0 := node.stat.Ctim
-		tmsa := [2]fuse.Timespec{tmsp0, tmsp0}
-		tmsp = tmsa[:]
+	if tmsp == nil || (len(tmsp) == 2 && tmsp[0].Sec == 0 && tmsp[1].Sec == 0) {
+		now := fuse.Now()
+		node.stat.Atim = now
+		node.stat.Mtim = now
+	} else {
+		node.stat.Atim = tmsp[0]
+		node.stat.Mtim = tmsp[1]
 	}
-	node.stat.Atim = tmsp[0]
-	node.stat.Mtim = tmsp[1]
+	node.stat.Ctim = fuse.Now()
 	return 0
 }
 
 func (self *Memfs) Open(path string, flags int) (errc int, fh uint64) {
 	defer trace(path, flags)(&errc, &fh)
 	defer self.synchronize()()
-	return self.openNode(path, false)
+	return self.openNode(path, false, flags)
 }
 
 func (self *Memfs) Getattr(path string, stat *fuse.Stat_t, fh uint64) (errc int) {
@@ -319,7 +320,7 @@ func (self *Memfs) Release(path string, fh uint64) (errc int) {
 func (self *Memfs) Opendir(path string) (errc int, fh uint64) {
 	defer trace(path)(&errc, &fh)
 	defer self.synchronize()()
-	return self.openNode(path, true)
+	return self.openNode(path, true, 0)
 }
 
 func (self *Memfs) Readdir(path string,
@@ -525,7 +526,7 @@ func (self *Memfs) removeNode(path string, dir bool) int {
 	return 0
 }
 
-func (self *Memfs) openNode(path string, dir bool) (int, uint64) {
+func (self *Memfs) openNode(path string, dir bool, flags int) (int, uint64) {
 	_, _, node := self.lookupNode(path, nil)
 	if nil == node {
 		return -fuse.ENOENT, ^uint64(0)
@@ -536,6 +537,13 @@ func (self *Memfs) openNode(path string, dir bool) (int, uint64) {
 	if dir && fuse.S_IFDIR != node.stat.Mode&fuse.S_IFMT {
 		return -fuse.ENOTDIR, ^uint64(0)
 	}
+	if flags&fuse.O_TRUNC == fuse.O_TRUNC {
+		node.data = resize(node.data, 0, true)
+		node.stat.Size = 0
+		tmsp := fuse.Now()
+		node.stat.Ctim = tmsp
+		node.stat.Mtim = tmsp
+	}
 	node.opencnt++
 	if node.opencnt == 1 {
 		self.openmap[node.stat.Ino] = node
@@ -545,9 +553,12 @@ func (self *Memfs) openNode(path string, dir bool) (int, uint64) {
 
 func (self *Memfs) closeNode(fh uint64) int {
 	node := self.openmap[fh]
+	if node == nil {
+		return -fuse.EBADF
+	}
 	node.opencnt--
 	if node.opencnt == 0 {
-		delete(self.openmap, node.stat.Ino)
+		delete(self.openmap, fh)
 	}
 	return 0
 }
@@ -586,5 +597,6 @@ func main() {
 	host := fuse.NewFileSystemHost(memfs)
 	host.SetCapReaddirPlus(true)
 	host.SetDirectIO(true)
+	host.SetUseIno(true)
 	host.Mount("", os.Args[1:])
 }
