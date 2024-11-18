@@ -26,6 +26,7 @@ package fuse
 	// The flag `I/usr/local/include/winfsp` only works on xgo and docker.
 
 #cgo darwin CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64 -I/usr/local/include/osxfuse/fuse -I/usr/local/include/fuse
+#cgo darwin LDFLAGS: -lfuse-t
 #cgo !fuse3,freebsd CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64 -I/usr/local/include/fuse
 #cgo !fuse3,netbsd CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64 -D_KERNTYPES
 #cgo !fuse3,openbsd CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64
