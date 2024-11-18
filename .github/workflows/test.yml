@@ -65,6 +65,9 @@ jobs:
           Expand-Archive -Path winfsp-tests.zip
           Copy-Item "C:\Program Files (x86)\WinFsp\bin\winfsp-x64.dll" winfsp-tests
 
+          # Enable Long Paths
+          New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWord -Force
+
       - name: Install FUSE and secfs.test (Linux)
         if: runner.os == 'Linux'
         run: |
