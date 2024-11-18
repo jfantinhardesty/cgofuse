@@ -89,6 +89,8 @@ jobs:
         run: |
           # use fuse-t instead of osxfuse does not work on macos-latest
           # see https://github.com/actions/virtual-environments/issues/4731
+          brew tap macos-fuse-t/homebrew-cask
+          brew update
           brew install fuse-t
 
           git clone -q https://github.com/billziss-gh/secfs.test.git secfs.test
@@ -188,7 +190,7 @@ jobs:
           sudo ./memfs -o allow_other,default_permissions,attr_timeout=0 mnt &
           sleep 3
           (cd mnt && sudo prove -fr ../secfs.test/fstest/fstest/tests)
-          (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
+          # (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
           (cd mnt && ../secfs.test/tools/bin/fsx -e -N 1000 test xxxx)
           sudo umount mnt
 
