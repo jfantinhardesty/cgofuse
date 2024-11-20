@@ -49,9 +49,16 @@ jobs:
           go-version: '1.23'
 
       - name: Install winfsp and winfsp-tests (Windows)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: runner.os == 'Windows'
         run: |
-          $releases = Invoke-WebRequest https://api.github.com/repos/winfsp/winfsp/releases | `
+          $headers = @{
+              Authorization = "token $env:GITHUB_TOKEN"
+              "User-Agent" = "GitHub Actions"
+          }
+
+          $releases = Invoke-WebRequest https://api.github.com/repos/winfsp/winfsp/releases -Headers $headers | `
               ConvertFrom-Json
 
           $asseturi = $releases[0].assets.browser_download_url | `
