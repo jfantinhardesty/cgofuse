@@ -135,8 +135,7 @@ jobs:
       - name: Build packages with fuse2
         run: |
           go build -v -o . ./...
-          go test -v -count=1 ./fuse
-
+      
       - name: Test packages with fuse2
         if: runner.os == 'Linux' || runner.os == 'Windows'
         run: |
