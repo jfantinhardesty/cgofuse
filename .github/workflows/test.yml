@@ -97,11 +97,7 @@ jobs:
       - name: Install FUSE (macOS)
         if: runner.os == 'macOS'
         run: |
-          # use fuse-t instead of osxfuse does not work on macos-latest
-          # see https://github.com/actions/virtual-environments/issues/4731
-          brew tap macos-fuse-t/homebrew-cask
-          brew update
-          brew install fuse-t
+          brew install macfuse
 
       - name: Build packages with fuse2
         run: |
