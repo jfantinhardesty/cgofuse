@@ -97,7 +97,11 @@ jobs:
       - name: Install FUSE and secfs.test (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install --cask macfuse
+          # use fuse-t instead of osxfuse does not work on macos-latest
+          # see https://github.com/actions/virtual-environments/issues/4731
+          brew tap macos-fuse-t/homebrew-cask
+          brew update
+          brew install fuse-t
 
           git clone -q https://github.com/billziss-gh/secfs.test.git secfs.test
           git -C secfs.test checkout -q edf5eb4a108bfb41073f765aef0cdd32bb3ee1ed
@@ -116,6 +120,17 @@ jobs:
           # remove irrelevant tests
           rm -rf secfs.test/fstest/fstest/tests/xacl
           rm -rf secfs.test/fstest/fstest/tests/zzz_ResourceFork
+
+          # Fix getconf calls for macOS compatibility. getconf on macOS
+          # requires an argument. We provide "." since we call getconf within the
+          # mounted directory.
+          sed -i "" \
+              -e 's/getconf NAME_MAX/getconf NAME_MAX ./' \
+              -e 's/getconf PATH_MAX/getconf PATH_MAX ./' \
+              secfs.test/fstest/fstest/tests/misc.sh
+ 
+          # Increase ulimit for open files on macOS
+          ulimit -n 4096
 
       - name: Build packages with fuse2
         run: |
