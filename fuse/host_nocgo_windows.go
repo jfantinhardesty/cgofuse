@@ -372,19 +372,6 @@ func c_hostAsgnCconninfo(conn *c_struct_fuse_conn_info,
 func c_hostAsgnCconfig(cfg *c_struct_fuse_config,
 	directIO c_bool,
 	useIno c_bool) {
-	if directIO {
-		cfg.direct_io = 1
-	} else {
-		cfg.direct_io = 0
-	}
-
-	if useIno {
-		cfg.use_ino = 1
-	} else {
-		cfg.use_ino = 0
-	}
-
-	cfg.attr_timeout = 0
 }
 func c_hostCstatvfsFromFusestatfs(stbuf *c_fuse_statvfs_t,
 	bsize c_uint64_t,
@@ -750,8 +737,8 @@ func init() {
 
 // 64-bit
 
-func go_hostGetattr64(path0 *c_char, stat0 *c_fuse_stat_t, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostGetattr(path0, stat0, fi0)))
+func go_hostGetattr64(path0 *c_char, stat0 *c_fuse_stat_t) (errc0 uintptr) {
+	return uintptr(int(hostGetattr(path0, stat0, nil)))
 }
 
 func go_hostReadlink64(path0 *c_char, buff0 *c_char, size0 uintptr) (errc0 uintptr) {
@@ -778,24 +765,24 @@ func go_hostSymlink64(target0 *c_char, newpath0 *c_char) (errc0 uintptr) {
 	return uintptr(int(hostSymlink(target0, newpath0)))
 }
 
-func go_hostRename64(oldpath0 *c_char, newpath0 *c_char, flags c_uint32_t) (errc0 uintptr) {
-	return uintptr(int(hostRename(oldpath0, newpath0, flags)))
+func go_hostRename64(oldpath0 *c_char, newpath0 *c_char) (errc0 uintptr) {
+	return uintptr(int(hostRename(oldpath0, newpath0, 0)))
 }
 
 func go_hostLink64(oldpath0 *c_char, newpath0 *c_char) (errc0 uintptr) {
 	return uintptr(int(hostLink(oldpath0, newpath0)))
 }
 
-func go_hostChmod64(path0 *c_char, mode0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostChmod(path0, c_fuse_mode_t(mode0), fi0)))
+func go_hostChmod64(path0 *c_char, mode0 uintptr) (errc0 uintptr) {
+	return uintptr(int(hostChmod(path0, c_fuse_mode_t(mode0), nil)))
 }
 
-func go_hostChown64(path0 *c_char, uid0 uintptr, gid0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostChown(path0, c_fuse_uid_t(uid0), c_fuse_gid_t(gid0), fi0)))
+func go_hostChown64(path0 *c_char, uid0 uintptr, gid0 uintptr) (errc0 uintptr) {
+	return uintptr(int(hostChown(path0, c_fuse_uid_t(uid0), c_fuse_gid_t(gid0), nil)))
 }
 
-func go_hostTruncate64(path0 *c_char, size0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostTruncate(path0, c_fuse_off_t(size0), fi0)))
+func go_hostTruncate64(path0 *c_char, size0 uintptr) (errc0 uintptr) {
+	return uintptr(int(hostTruncate(path0, c_fuse_off_t(size0), nil)))
 }
 
 func go_hostOpen64(path0 *c_char, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
@@ -851,8 +838,8 @@ func go_hostOpendir64(path0 *c_char, fi0 *c_struct_fuse_file_info) (errc0 uintpt
 
 func go_hostReaddir64(path0 *c_char,
 	buff0 unsafe.Pointer, fill0 c_fuse_fill_dir_t, ofst0 uintptr,
-	fi0 *c_struct_fuse_file_info, flags c_fuse_readdir_flags_t) (errc0 uintptr) {
-	return uintptr(int(hostReaddir(path0, buff0, fill0, c_fuse_off_t(ofst0), fi0, flags)))
+	fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
+	return uintptr(int(hostReaddir(path0, buff0, fill0, c_fuse_off_t(ofst0), fi0, 0)))
 }
 
 func go_hostReleasedir64(path0 *c_char, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
@@ -864,8 +851,8 @@ func go_hostFsyncdir64(path0 *c_char, datasync uintptr,
 	return uintptr(int(hostFsyncdir(path0, c_int(datasync), fi0)))
 }
 
-func go_hostInit64(conn0 *c_struct_fuse_conn_info, conf0 *c_struct_fuse_config) (user_data unsafe.Pointer) {
-	return hostInit(conn0, conf0)
+func go_hostInit64(conn0 *c_struct_fuse_conn_info) (user_data unsafe.Pointer) {
+	return hostInit(conn0, nil)
 }
 
 func go_hostDestroy64(user_data unsafe.Pointer) uintptr {
@@ -891,8 +878,8 @@ func go_hostFgetattr64(path0 *c_char, stat0 *c_fuse_stat_t,
 	return uintptr(int(hostFgetattr(path0, stat0, fi0)))
 }
 
-func go_hostUtimens64(path0 *c_char, tmsp0 *c_fuse_timespec_t, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostUtimens(path0, tmsp0, fi0)))
+func go_hostUtimens64(path0 *c_char, tmsp0 *c_fuse_timespec_t) (errc0 uintptr) {
+	return uintptr(int(hostUtimens(path0, tmsp0, nil)))
 }
 
 func go_hostGetpath64(path0 *c_char, buff0 *c_char, size0 uintptr,
@@ -914,8 +901,8 @@ func go_hostChflags64(path0 *c_char, flags c_uint32_t) (errc0 uintptr) {
 
 // 32-bit
 
-func go_hostGetattr32(path0 *c_char, stat0 *c_fuse_stat_t, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostGetattr(path0, stat0, fi0)))
+func go_hostGetattr32(path0 *c_char, stat0 *c_fuse_stat_t) (errc0 uintptr) {
+	return uintptr(int(hostGetattr(path0, stat0, nil)))
 }
 
 func go_hostReadlink32(path0 *c_char, buff0 *c_char, size0 uintptr) (errc0 uintptr) {
@@ -942,24 +929,24 @@ func go_hostSymlink32(target0 *c_char, newpath0 *c_char) (errc0 uintptr) {
 	return uintptr(int(hostSymlink(target0, newpath0)))
 }
 
-func go_hostRename32(oldpath0 *c_char, newpath0 *c_char, flags c_uint32_t) (errc0 uintptr) {
-	return uintptr(int(hostRename(oldpath0, newpath0, flags)))
+func go_hostRename32(oldpath0 *c_char, newpath0 *c_char) (errc0 uintptr) {
+	return uintptr(int(hostRename(oldpath0, newpath0, 0)))
 }
 
 func go_hostLink32(oldpath0 *c_char, newpath0 *c_char) (errc0 uintptr) {
 	return uintptr(int(hostLink(oldpath0, newpath0)))
 }
 
-func go_hostChmod32(path0 *c_char, mode0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostChmod(path0, c_fuse_mode_t(mode0), fi0)))
+func go_hostChmod32(path0 *c_char, mode0 uintptr) (errc0 uintptr) {
+	return uintptr(int(hostChmod(path0, c_fuse_mode_t(mode0), nil)))
 }
 
-func go_hostChown32(path0 *c_char, uid0 uintptr, gid0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostChown(path0, c_fuse_uid_t(uid0), c_fuse_gid_t(gid0), fi0)))
+func go_hostChown32(path0 *c_char, uid0 uintptr, gid0 uintptr) (errc0 uintptr) {
+	return uintptr(int(hostChown(path0, c_fuse_uid_t(uid0), c_fuse_gid_t(gid0), nil)))
 }
 
-func go_hostTruncate32(path0 *c_char, lsize0, hsize0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostTruncate(path0, (c_fuse_off_t(hsize0)<<32)|c_fuse_off_t(lsize0), fi0)))
+func go_hostTruncate32(path0 *c_char, lsize0, hsize0 uintptr) (errc0 uintptr) {
+	return uintptr(int(hostTruncate(path0, (c_fuse_off_t(hsize0)<<32)|c_fuse_off_t(lsize0), nil)))
 }
 
 func go_hostOpen32(path0 *c_char, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
@@ -1017,9 +1004,9 @@ func go_hostOpendir32(path0 *c_char, fi0 *c_struct_fuse_file_info) (errc0 uintpt
 
 func go_hostReaddir32(path0 *c_char,
 	buff0 unsafe.Pointer, fill0 c_fuse_fill_dir_t, lofst0, hofst0 uintptr,
-	fi0 *c_struct_fuse_file_info, flags c_fuse_readdir_flags_t) (errc0 uintptr) {
+	fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
 	return uintptr(int(hostReaddir(path0,
-		buff0, fill0, (c_fuse_off_t(hofst0)<<32)|c_fuse_off_t(lofst0), fi0, flags)))
+		buff0, fill0, (c_fuse_off_t(hofst0)<<32)|c_fuse_off_t(lofst0), fi0, 0)))
 }
 
 func go_hostReleasedir32(path0 *c_char, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
@@ -1031,8 +1018,8 @@ func go_hostFsyncdir32(path0 *c_char, datasync uintptr,
 	return uintptr(int(hostFsyncdir(path0, c_int(datasync), fi0)))
 }
 
-func go_hostInit32(conn0 *c_struct_fuse_conn_info, conf0 *c_struct_fuse_config) (user_data unsafe.Pointer) {
-	return hostInit(conn0, conf0)
+func go_hostInit32(conn0 *c_struct_fuse_conn_info) (user_data unsafe.Pointer) {
+	return hostInit(conn0, nil)
 }
 
 func go_hostDestroy32(user_data unsafe.Pointer) uintptr {
@@ -1058,8 +1045,8 @@ func go_hostFgetattr32(path0 *c_char, stat0 *c_fuse_stat_t,
 	return uintptr(int(hostFgetattr(path0, stat0, fi0)))
 }
 
-func go_hostUtimens32(path0 *c_char, tmsp0 *c_fuse_timespec_t, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
-	return uintptr(int(hostUtimens(path0, tmsp0, fi0)))
+func go_hostUtimens32(path0 *c_char, tmsp0 *c_fuse_timespec_t) (errc0 uintptr) {
+	return uintptr(int(hostUtimens(path0, tmsp0, nil)))
 }
 
 func go_hostGetpath32(path0 *c_char, buff0 *c_char, size0 uintptr,
