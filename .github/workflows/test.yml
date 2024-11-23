@@ -83,7 +83,7 @@ jobs:
           git clone -q https://github.com/billziss-gh/secfs.test.git secfs.test
           git -C secfs.test checkout -q edf5eb4a108bfb41073f765aef0cdd32bb3ee1ed
           mkdir -p secfs.test/tools/bin
-          touch secfs.test/tools/bin/bonnie
+          touch secfs.test/tools/bin/bonnie++
           touch secfs.test/tools/bin/iozone
           make -C secfs.test
 
@@ -165,14 +165,14 @@ jobs:
           sudo ./memfs -o allow_other,default_permissions,attr_timeout=0 mnt &
           sleep 3
           (cd mnt && sudo prove -fr ../secfs.test/fstest/fstest/tests)
-          # (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
+          (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
           (cd mnt && ../secfs.test/tools/bin/fsx -e -N 1000 test xxxx)
           sudo umount mnt
 
           sudo ./passthrough -o allow_other,default_permissions,attr_timeout=0 p mnt &
           sleep 3
           (cd mnt && sudo prove -fr ../secfs.test/fstest/fstest/tests)
-          # (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
+          (cd mnt && ../secfs.test/tools/bin/fsx -N 10000 test xxxxxx)
           sudo umount mnt
 
           rm -rf p
