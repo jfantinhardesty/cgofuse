@@ -21,9 +21,6 @@ package fuse
 #cgo fuse3,openbsd CFLAGS: -DFUSE_USE_VERSION=39 -D_FILE_OFFSET_BITS=64
 #cgo fuse3,linux CFLAGS: -DFUSE_USE_VERSION=39 -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse3
 #cgo fuse3,linux LDFLAGS: -lfuse3 -ldl
-#cgo fuse3,windows CFLAGS: -DFUSE_USE_VERSION=39 -I/usr/local/include/winfsp
-	// Use `set CPATH=C:\Program Files (x86)\WinFsp\inc\fuse` on Windows.
-	// The flag `I/usr/local/include/winfsp` only works on xgo and docker.
 
 #cgo darwin CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64 -I/usr/local/include/osxfuse/fuse -I/usr/local/include/fuse
 #cgo !fuse3,freebsd CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64 -I/usr/local/include/fuse
@@ -31,7 +28,7 @@ package fuse
 #cgo !fuse3,openbsd CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64
 #cgo !fuse3,linux CFLAGS: -DFUSE_USE_VERSION=28 -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse
 #cgo !fuse3,linux LDFLAGS: -ldl
-#cgo !fuse3,windows CFLAGS: -DFUSE_USE_VERSION=28 -I/usr/local/include/winfsp
+#cgo windows CFLAGS: -DFUSE_USE_VERSION=28 -I/usr/local/include/winfsp
 	// Use `set CPATH=C:\Program Files (x86)\WinFsp\inc\fuse` on Windows.
 	// The flag `I/usr/local/include/winfsp` only works on xgo and docker.
 
@@ -236,15 +233,9 @@ static void *cgofuse_init_fuse(void)
 #define FSP_FUSE_API_CALL(api)          (cgofuse_init_fast(1), pfn_ ## api)
 #define FSP_FUSE_SYM(proto, ...)        static inline proto { __VA_ARGS__ }
 
-#if FUSE_USE_VERSION >= 30
-	#include <fuse3/fuse_common.h>
-	#include <fuse3/fuse.h>
-	#include <fuse3/fuse_opt.h>
-#else
-	#include <fuse_common.h>
-	#include <fuse.h>
-	#include <fuse_opt.h>
-#endif
+#include <fuse_common.h>
+#include <fuse.h>
+#include <fuse_opt.h>
 
 // optional
 #if !defined(FSP_FUSE_NOTIFY_MKDIR)

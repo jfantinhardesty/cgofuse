@@ -26,9 +26,9 @@ jobs:
           - os: windows-latest
             arch: amd64
             cgo: 0
-          # - os: windows-latest
-          #   arch: 386
-          #   cgo: 0
+          - os: windows-latest
+            arch: 386
+            cgo: 0
           - os: ubuntu-latest
             arch: amd64
             cgo: 1
@@ -149,32 +149,11 @@ jobs:
           rm -rf p
           rmdir mnt
 
-      - name: Build packages with fuse3
+      - name: Build packages with fuse3 (Linux)
+        if: runner.os == 'Linux'
         run: |
           go build -tags=fuse3 -v -o . ./...
-
-      - name: Test packages with fuse3
-        if: runner.os == 'Linux' || runner.os == 'Windows'
-        run: |
           go test -v -count=1 ./fuse
-
-      - name: Test file systems (Windows) with fuse3
-        if: runner.os == 'Windows'
-        run: |
-          Set-PSDebug -Trace 1
-
-          $testexe = (Get-Item winfsp-tests\winfsp-tests-x64.exe)
-          Start-Process -NoNewWindow .\memfs.exe "-o uid=-1,rellinks,FileInfoTimeout=-1 X:"
-          Start-Sleep 3
-          Push-Location X:\
-          . $testexe --fuse-external --resilient --case-insensitive-cmp `
-              +* `
-              -create_fileattr_test `
-              -reparse_nfs_test `
-              -ea*
-          Stop-Process -Name memfs
-          Start-Sleep 3
-          Pop-Location
 
       - name: Test file systems (Linux) with fuse3
         if: runner.os == 'Linux'
