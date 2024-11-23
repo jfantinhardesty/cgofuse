@@ -185,29 +185,29 @@ static void *cgofuse_init_fuse(void)
 	if (0 == h)
 		h = dlopen("/usr/local/lib/libfuse-t.dylib", RTLD_NOW); // FUSE-T
 #elif defined(__FreeBSD__)
-	#if FUSE_USE_VERSION >= 30
-		h = dlopen("libfuse3.so.3", RTLD_NOW);
-	#else
-        h = dlopen("libfuse.so.2", RTLD_NOW);
-	#endif
+#if FUSE_USE_VERSION >= 30
+	h = dlopen("libfuse3.so.3", RTLD_NOW);
+#else
+    h = dlopen("libfuse.so.2", RTLD_NOW);
+#endif
 #elif defined(__NetBSD__)
-	#if FUSE_USE_VERSION >= 30
-		h = dlopen("libfuse3.so.3", RTLD_NOW);
-	#else
-        h = dlopen("libfuse.so.2", RTLD_NOW);
-	#endif
+#if FUSE_USE_VERSION >= 30
+	h = dlopen("libfuse3.so.3", RTLD_NOW);
+#else
+    h = dlopen("libfuse.so.2", RTLD_NOW);
+#endif
 #elif defined(__OpenBSD__)
-	#if FUSE_USE_VERSION >= 30
-		h = dlopen("libfuse3.so.3", RTLD_NOW);
-	#else
-        h = dlopen("libfuse.so.2", RTLD_NOW);
-	#endif
+#if FUSE_USE_VERSION >= 30
+	h = dlopen("libfuse3.so.3", RTLD_NOW);
+#else
+    h = dlopen("libfuse.so.2", RTLD_NOW);
+#endif
 #elif defined(__linux__)
-	#if FUSE_USE_VERSION >= 30
-		h = dlopen("libfuse3.so.3", RTLD_NOW);
-	#else
-        h = dlopen("libfuse.so.2", RTLD_NOW);
-	#endif
+#if FUSE_USE_VERSION >= 30
+	h = dlopen("libfuse3.so.3", RTLD_NOW);
+#else
+    h = dlopen("libfuse.so.2", RTLD_NOW);
+#endif
 #endif
 	if (0 == h)
 		return 0;
@@ -232,7 +232,6 @@ static void *cgofuse_init_fuse(void)
 #define FSP_FUSE_API_NAME(api)          (* pfn_ ## api)
 #define FSP_FUSE_API_CALL(api)          (cgofuse_init_fast(1), pfn_ ## api)
 #define FSP_FUSE_SYM(proto, ...)        static inline proto { __VA_ARGS__ }
-
 #include <fuse_common.h>
 #include <fuse.h>
 #include <fuse_opt.h>
@@ -582,11 +581,11 @@ static inline void hostAsgnCfileinfo(struct fuse_file_info *fi,
 static inline int hostFilldir(fuse_fill_dir_t filler, void *buf,
 	char *name, fuse_stat_t *stbuf, fuse_off_t off)
 {
-	#if FUSE_USE_VERSION >= 30
-		return filler(buf, name, stbuf, off, fill_dir_plus);
-	#else
-		return filler(buf, name, stbuf, off);
-	#endif
+#if FUSE_USE_VERSION >= 30
+	return filler(buf, name, stbuf, off, fill_dir_plus);
+#else
+	return filler(buf, name, stbuf, off);
+#endif
 }
 
 #if defined(__APPLE__)
@@ -628,32 +627,32 @@ static int hostMount(int argc, char *argv[], void *data)
 {
 	static struct fuse_operations fsop =
 	{
-		#if FUSE_USE_VERSION >= 30
+#if FUSE_USE_VERSION >= 30
 		.getattr = (int (*)(const char *, fuse_stat_t *, struct fuse_file_info *))go_hostGetattrFuse3,
-		#else
+#else
 		.getattr = (int (*)(const char *, fuse_stat_t *))go_hostGetattrFuse2,
-		#endif
+#endif
 		.readlink = (int (*)(const char *, char *, size_t))go_hostReadlink,
 		.mknod = (int (*)(const char *, fuse_mode_t, fuse_dev_t))go_hostMknod,
 		.mkdir = (int (*)(const char *, fuse_mode_t))go_hostMkdir,
 		.unlink = (int (*)(const char *))go_hostUnlink,
 		.rmdir = (int (*)(const char *))go_hostRmdir,
 		.symlink = (int (*)(const char *, const char *))go_hostSymlink,
-		#if FUSE_USE_VERSION >= 30
+#if FUSE_USE_VERSION >= 30
 		.rename = (int (*)(const char *, const char *, unsigned int flags))go_hostRenameFuse3,
-		#else
+#else
 		.rename = (int (*)(const char *, const char *))go_hostRenameFuse2,
-		#endif
+#endif
 		.link = (int (*)(const char *, const char *))go_hostLink,
-		#if FUSE_USE_VERSION >= 30
+#if FUSE_USE_VERSION >= 30
 		.chmod = (int (*)(const char *, fuse_mode_t, struct fuse_file_info *))go_hostChmodFuse3,
 		.chown = (int (*)(const char *, fuse_uid_t, fuse_gid_t, struct fuse_file_info *))go_hostChownFuse3,
 		.truncate = (int (*)(const char *, fuse_off_t, struct fuse_file_info *))go_hostTruncateFuse3,
-		#else
+#else
 		.chmod = (int (*)(const char *, fuse_mode_t))go_hostChmodFuse2,
 		.chown = (int (*)(const char *, fuse_uid_t, fuse_gid_t))go_hostChownFuse2,
 		.truncate = (int (*)(const char *, fuse_off_t))go_hostTruncateFuse2,
-		#endif
+#endif
 		.open = (int (*)(const char *, struct fuse_file_info *))go_hostOpen,
 		.read = (int (*)(const char *, char *, size_t, fuse_off_t, struct fuse_file_info *))
 			go_hostRead,
@@ -675,34 +674,34 @@ static int hostMount(int argc, char *argv[], void *data)
 		.listxattr = (int (*)(const char *, char *, size_t))go_hostListxattr,
 		.removexattr = (int (*)(const char *, const char *))go_hostRemovexattr,
 		.opendir = (int (*)(const char *, struct fuse_file_info *))go_hostOpendir,
-		#if FUSE_USE_VERSION >= 30
+#if FUSE_USE_VERSION >= 30
 		.readdir = (int (*)(const char *, void *, fuse_fill_dir_t, fuse_off_t,
 			struct fuse_file_info *, fuse_readdir_flags_t flags))go_hostReaddirFuse3,
-		#else
+#else
 		.readdir = (int (*)(const char *, void *, fuse_fill_dir_t, fuse_off_t,
 			struct fuse_file_info *))go_hostReaddirFuse2,
-		#endif
+#endif
 		.releasedir = (int (*)(const char *, struct fuse_file_info *))go_hostReleasedir,
 		.fsyncdir = (int (*)(const char *, int, struct fuse_file_info *))go_hostFsyncdir,
-		#if FUSE_USE_VERSION >= 30
+#if FUSE_USE_VERSION >= 30
 		.init = (void *(*)(struct fuse_conn_info *, struct fuse_config *))go_hostInitFuse3,
-		#else
+#else
 		.init = (void *(*)(struct fuse_conn_info *))go_hostInitFuse2,
-		#endif
+#endif
 		.destroy = (void (*)(void *))go_hostDestroy,
 		.access = (int (*)(const char *, int))go_hostAccess,
 		.create = (int (*)(const char *, fuse_mode_t, struct fuse_file_info *))go_hostCreate,
-		#if FUSE_USE_VERSION < 30
+#if FUSE_USE_VERSION < 30
 		.ftruncate = (int (*)(const char *, fuse_off_t, struct fuse_file_info *))go_hostFtruncate,
 		.fgetattr = (int (*)(const char *, fuse_stat_t *, struct fuse_file_info *))go_hostFgetattr,
-		#endif
+#endif
 		//.lock = (int (*)(const char *, struct fuse_file_info *, int, struct fuse_flock *))
 		//	go_hostFlock,
-		#if FUSE_USE_VERSION >= 30
+#if FUSE_USE_VERSION >= 30
 		.utimens = (int (*)(const char *, const fuse_timespec_t [2], struct fuse_file_info *))go_hostUtimensFuse3,
-		#else
+#else
 		.utimens = (int (*)(const char *, const fuse_timespec_t [2]))go_hostUtimensFuse2,
-		#endif
+#endif
 #if defined(__APPLE__) || (defined(_WIN32) && defined(FSP_FUSE_CAP_STAT_EX))
 		.setchgtime = (int (*)(const char *, const fuse_timespec_t *))go_hostSetchgtime,
 		.setcrtime = (int (*)(const char *, const fuse_timespec_t *))go_hostSetcrtime,
