@@ -696,6 +696,8 @@ func init() {
 			destroy:     syscall.NewCallbackCDecl(go_hostDestroy64),
 			access:      syscall.NewCallbackCDecl(go_hostAccess64),
 			create:      syscall.NewCallbackCDecl(go_hostCreate64),
+			ftruncate:   syscall.NewCallbackCDecl(go_hostFtruncate64),
+			fgetattr:    syscall.NewCallbackCDecl(go_hostFgetattr64),
 			utimens:     syscall.NewCallbackCDecl(go_hostUtimens64),
 			getpath:     syscall.NewCallbackCDecl(go_hostGetpath64),
 			setchgtime:  syscall.NewCallbackCDecl(go_hostSetchgtime64),
@@ -735,6 +737,8 @@ func init() {
 			destroy:     syscall.NewCallbackCDecl(go_hostDestroy32),
 			access:      syscall.NewCallbackCDecl(go_hostAccess32),
 			create:      syscall.NewCallbackCDecl(go_hostCreate32),
+			ftruncate:   syscall.NewCallbackCDecl(go_hostFtruncate32),
+			fgetattr:    syscall.NewCallbackCDecl(go_hostFgetattr32),
 			utimens:     syscall.NewCallbackCDecl(go_hostUtimens32),
 			getpath:     syscall.NewCallbackCDecl(go_hostGetpath32),
 			setchgtime:  syscall.NewCallbackCDecl(go_hostSetchgtime32),
@@ -875,6 +879,16 @@ func go_hostAccess64(path0 *c_char, mask0 uintptr) (errc0 uintptr) {
 
 func go_hostCreate64(path0 *c_char, mode0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
 	return uintptr(int(hostCreate(path0, c_fuse_mode_t(mode0), fi0)))
+}
+
+func go_hostFtruncate64(path0 *c_char, size0 uintptr,
+	fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
+	return uintptr(int(hostFtruncate(path0, c_fuse_off_t(size0), fi0)))
+}
+
+func go_hostFgetattr64(path0 *c_char, stat0 *c_fuse_stat_t,
+	fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
+	return uintptr(int(hostFgetattr(path0, stat0, fi0)))
 }
 
 func go_hostUtimens64(path0 *c_char, tmsp0 *c_fuse_timespec_t, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
@@ -1032,6 +1046,16 @@ func go_hostAccess32(path0 *c_char, mask0 uintptr) (errc0 uintptr) {
 
 func go_hostCreate32(path0 *c_char, mode0 uintptr, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
 	return uintptr(int(hostCreate(path0, c_fuse_mode_t(mode0), fi0)))
+}
+
+func go_hostFtruncate32(path0 *c_char, lsize0, hsize0 uintptr,
+	fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
+	return uintptr(int(hostFtruncate(path0, (c_fuse_off_t(hsize0)<<32)|c_fuse_off_t(lsize0), fi0)))
+}
+
+func go_hostFgetattr32(path0 *c_char, stat0 *c_fuse_stat_t,
+	fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
+	return uintptr(int(hostFgetattr(path0, stat0, fi0)))
 }
 
 func go_hostUtimens32(path0 *c_char, tmsp0 *c_fuse_timespec_t, fi0 *c_struct_fuse_file_info) (errc0 uintptr) {
