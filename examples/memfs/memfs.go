@@ -176,7 +176,7 @@ func (self *Memfs) Rename(oldpath string, newpath string, flags uint32) (errc in
 	if nil == newprnt {
 		return -fuse.ENOENT
 	}
-	if newname == "" {
+	if "" == newname {
 		// guard against directory loop creation
 		return -fuse.EINVAL
 	}
@@ -185,7 +185,7 @@ func (self *Memfs) Rename(oldpath string, newpath string, flags uint32) (errc in
 	}
 	if nil != newnode {
 		errc = self.removeNode(newpath, fuse.S_IFDIR == oldnode.stat.Mode&fuse.S_IFMT)
-		if errc != 0 {
+		if 0 != errc {
 			return errc
 		}
 	}
@@ -230,15 +230,14 @@ func (self *Memfs) Utimens(path string, tmsp []fuse.Timespec, fh uint64) (errc i
 	if nil == node {
 		return -fuse.ENOENT
 	}
-	if tmsp == nil || (len(tmsp) == 2 && tmsp[0].Sec == 0 && tmsp[1].Sec == 0) {
-		now := fuse.Now()
-		node.stat.Atim = now
-		node.stat.Mtim = now
-	} else {
-		node.stat.Atim = tmsp[0]
-		node.stat.Mtim = tmsp[1]
-	}
 	node.stat.Ctim = fuse.Now()
+	if tmsp == nil || (len(tmsp) == 2 && tmsp[0].Sec == 0 && tmsp[1].Sec == 0) {
+		tmsp0 := node.stat.Ctim
+		tmsa := [2]fuse.Timespec{tmsp0, tmsp0}
+		tmsp = tmsa[:]
+	}
+	node.stat.Atim = tmsp[0]
+	node.stat.Mtim = tmsp[1]
 	return 0
 }
 
@@ -354,7 +353,7 @@ func (self *Memfs) Setxattr(path string, name string, value []byte, flags int) (
 	if nil == node {
 		return -fuse.ENOENT
 	}
-	if name == "com.apple.ResourceFork" {
+	if "com.apple.ResourceFork" == name {
 		return -fuse.ENOTSUP
 	}
 	if fuse.XATTR_CREATE == flags {
@@ -382,7 +381,7 @@ func (self *Memfs) Getxattr(path string, name string) (errc int, xatr []byte) {
 	if nil == node {
 		return -fuse.ENOENT, nil
 	}
-	if name == "com.apple.ResourceFork" {
+	if "com.apple.ResourceFork" == name {
 		return -fuse.ENOTSUP, nil
 	}
 	xatr, ok := node.xatr[name]
@@ -399,7 +398,7 @@ func (self *Memfs) Removexattr(path string, name string) (errc int) {
 	if nil == node {
 		return -fuse.ENOENT
 	}
-	if name == "com.apple.ResourceFork" {
+	if "com.apple.ResourceFork" == name {
 		return -fuse.ENOTSUP
 	}
 	if _, ok := node.xatr[name]; !ok {
@@ -464,7 +463,7 @@ func (self *Memfs) lookupNode(path string, ancestor *node_t) (prnt *node_t, name
 	name = ""
 	node = self.root
 	for _, c := range split(path) {
-		if c != "" {
+		if "" != c {
 			if 255 < utf8.RuneCountInString(c) {
 				panic(fuse.Error(-fuse.ENAMETOOLONG))
 			}
@@ -546,7 +545,7 @@ func (self *Memfs) openNode(path string, dir bool, flags int) (int, uint64) {
 		node.stat.Mtim = tmsp
 	}
 	node.opencnt++
-	if node.opencnt == 1 {
+	if 1 == node.opencnt {
 		self.openmap[node.stat.Ino] = node
 	}
 	return 0, node.stat.Ino
@@ -558,7 +557,7 @@ func (self *Memfs) closeNode(fh uint64) int {
 		return -fuse.EBADF
 	}
 	node.opencnt--
-	if node.opencnt == 0 {
+	if 0 == node.opencnt {
 		delete(self.openmap, fh)
 	}
 	return 0

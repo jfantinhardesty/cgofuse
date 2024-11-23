@@ -13,6 +13,7 @@
 package fuse
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -46,20 +47,20 @@ func (self *testfs) Getattr(path string, stat *Stat_t, fh uint64) (errc int) {
 func (self *testfs) Readdir(path string,
 	fill func(name string, stat *Stat_t, ofst int64) bool,
 	ofst int64,
-	fh uint64, flags uint32) (errc int) {
+	fh uint64) (errc int) {
 	fill(".", nil, 0)
 	fill("..", nil, 0)
 	return 0
 }
 
 func testHost(t *testing.T, unmount bool) {
-	path, err := os.MkdirTemp("", "test")
+	path, err := ioutil.TempDir("", "test")
 	if nil != err {
 		panic(err)
 	}
 	defer os.Remove(path)
 	mntp := filepath.Join(path, "m")
-	if runtime.GOOS != "windows" {
+	if "windows" != runtime.GOOS {
 		err = os.Mkdir(mntp, os.FileMode(0755))
 		if nil != err {
 			panic(err)
@@ -89,10 +90,10 @@ func testHost(t *testing.T, unmount bool) {
 	if !ures {
 		t.Error("Unmount failed")
 	}
-	if tstf.init != 1 {
+	if 1 != tstf.init {
 		t.Errorf("Init() called %v times; expected 1", tstf.init)
 	}
-	if tstf.dstr != 1 {
+	if 1 != tstf.dstr {
 		t.Errorf("Destroy() called %v times; expected 1", tstf.dstr)
 	}
 }
@@ -102,7 +103,7 @@ func TestUnmount(t *testing.T) {
 }
 
 func TestSignal(t *testing.T) {
-	if runtime.GOOS != "windows" {
+	if "windows" != runtime.GOOS {
 		testHost(t, false)
 	}
 }

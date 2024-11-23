@@ -119,7 +119,7 @@ func hostGetattr(path0 *c_char, stat0 *c_fuse_stat_t,
 	path := c_GoString(path0)
 	stat := &Stat_t{}
 	fifh := ^uint64(0)
-	if fi0 != nil {
+	if nil != fi0 {
 		fifh = uint64(fi0.fh)
 	}
 	errc := fsop.Getattr(path, stat, fifh)
@@ -202,7 +202,7 @@ func hostChmod(path0 *c_char, mode0 c_fuse_mode_t, fi0 *c_struct_fuse_file_info)
 	fsop := hostHandleGet(c_fuse_get_context().private_data).fsop
 	path := c_GoString(path0)
 	fifh := ^uint64(0)
-	if fi0 != nil {
+	if nil != fi0 {
 		fifh = uint64(fi0.fh)
 	}
 	errc := fsop.Chmod(path, uint32(mode0), fifh)
@@ -214,7 +214,7 @@ func hostChown(path0 *c_char, uid0 c_fuse_uid_t, gid0 c_fuse_gid_t, fi0 *c_struc
 	fsop := hostHandleGet(c_fuse_get_context().private_data).fsop
 	path := c_GoString(path0)
 	fifh := ^uint64(0)
-	if fi0 != nil {
+	if nil != fi0 {
 		fifh = uint64(fi0.fh)
 	}
 	errc := fsop.Chown(path, uint32(uid0), uint32(gid0), fifh)
@@ -226,7 +226,7 @@ func hostTruncate(path0 *c_char, size0 c_fuse_off_t, fi0 *c_struct_fuse_file_inf
 	fsop := hostHandleGet(c_fuse_get_context().private_data).fsop
 	path := c_GoString(path0)
 	fifh := ^uint64(0)
-	if fi0 != nil {
+	if nil != fi0 {
 		fifh = uint64(fi0.fh)
 	}
 	errc := fsop.Truncate(path, int64(size0), fifh)
@@ -535,7 +535,7 @@ func hostUtimens(path0 *c_char, tmsp0 *c_fuse_timespec_t, fi0 *c_struct_fuse_fil
 	fsop := hostHandleGet(c_fuse_get_context().private_data).fsop
 	path := c_GoString(path0)
 	fifh := ^uint64(0)
-	if fi0 != nil {
+	if nil != fi0 {
 		fifh = uint64(fi0.fh)
 	}
 	if tmsp0 == nil {
@@ -561,7 +561,7 @@ func hostGetpath(path0 *c_char, buff0 *c_char, size0 c_size_t,
 	}
 	path := c_GoString(path0)
 	fifh := ^uint64(0)
-	if fi0 != nil {
+	if nil != fi0 {
 		fifh = uint64(fi0.fh)
 	}
 	errc, rslt := intf.Getpath(path, fifh)

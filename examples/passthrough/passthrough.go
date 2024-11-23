@@ -260,7 +260,7 @@ func main() {
 	syscall.Umask(0)
 	ptfs := Ptfs{}
 	args := os.Args
-	if 3 <= len(args) && args[len(args)-2][0] != '-' && args[len(args)-1][0] != '-' {
+	if 3 <= len(args) && '-' != args[len(args)-2][0] && '-' != args[len(args)-1][0] {
 		ptfs.root, _ = filepath.Abs(args[len(args)-2])
 		args = append(args[:len(args)-2], args[len(args)-1])
 	}
