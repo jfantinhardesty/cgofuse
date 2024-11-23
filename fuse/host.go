@@ -644,10 +644,14 @@ func (host *FileSystemHost) SetCapDeleteAccess(value bool) {
 	host.capDeleteAccess = value
 }
 
+// SetDirectIO causes the file system to disable page caching [Fuse3 only]. Must be set
+// before Mount is called.
 func (host *FileSystemHost) SetDirectIO(value bool) {
 	host.directIO = value
 }
 
+// SetUseIno causes the file system to use its own inode values [Fuse3 only]. Must be set
+// before Mount is called.
 func (host *FileSystemHost) SetUseIno(value bool) {
 	host.useIno = value
 }

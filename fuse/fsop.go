@@ -12,6 +12,10 @@
 
 // Package fuse allows the creation of user mode file systems in Go.
 //
+// This packages supports both FUSE2 and FUSE3 on Linux and FUSE2 on Windows and macOS.
+// By default, cgofuse will link with FUSE2. To link with FUSE3, simply add '-tags=fuse3'
+// to your 'go build' flags.
+//
 // A user mode file system is a user mode process that receives file system operations
 // from the OS FUSE layer and satisfies them in user mode. A user mode file system
 // implements the interface FileSystemInterface either directly or by embedding a
